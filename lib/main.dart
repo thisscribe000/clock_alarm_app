@@ -11,17 +11,19 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final prefs = await SharedPreferences.getInstance();
   final isDarkMode = prefs.getBool('isDarkMode') ?? false;
+  final seenSplash = prefs.getBool('seenSplash') ?? false;
   
   // Initialize widget
   await WidgetService.initWidget();
   
-  runApp(MyApp(initialDarkMode: isDarkMode));
+  runApp(MyApp(initialDarkMode: isDarkMode, showSplash: !seenSplash));
 }
 
 class MyApp extends StatefulWidget {
   final bool initialDarkMode;
+  final bool showSplash;
   
-  const MyApp({super.key, required this.initialDarkMode});
+  const MyApp({super.key, required this.initialDarkMode, this.showSplash = true});
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -37,6 +39,7 @@ class _MyAppState extends State<MyApp> {
     super.initState();
     _isDarkMode = widget.initialDarkMode;
     _settingsProvider = SettingsProvider();
+    _showSplash = widget.showSplash;
   }
 
   Future<void> _toggleTheme() async {
