@@ -520,14 +520,25 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             if (_chainLine().isNotEmpty)
-              Text(
-                _chainLine(),
-                style: TextStyle(
-                  fontSize: 18,
-                  color: exprColor,
-                  fontWeight: FontWeight.w400,
+              // Keep the expression on a single line and allow horizontal scrolling
+              SingleChildScrollView(
+                reverse: true,
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 48),
+                  child: Text(
+                    _chainLine(),
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: exprColor,
+                      fontWeight: FontWeight.w400,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.visible,
+                    textAlign: TextAlign.right,
+                  ),
                 ),
-                textAlign: TextAlign.right,
               ),
             const SizedBox(height: 10),
             Row(
