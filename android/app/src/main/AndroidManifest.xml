@@ -1,6 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.INTERNET" />
     <application
-        android:label="clock_alarm_app"
+        android:label="calc_convert"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
@@ -30,6 +31,7 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <!-- Widget receiver removed temporarily -->
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and
