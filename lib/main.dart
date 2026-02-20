@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'theme/app_theme.dart';
 import 'screens/home_screen.dart';
+import 'screens/splash_screen.dart';
 import 'providers/settings_provider.dart';
 import 'services/widget_service.dart';
 
@@ -29,6 +30,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   late bool _isDarkMode;
   late SettingsProvider _settingsProvider;
+  bool _showSplash = true;
 
   @override
   void initState() {
@@ -59,10 +61,18 @@ class _MyAppState extends State<MyApp> {
             themeMode: settings.themeMode == ThemeMode.system
                 ? (_isDarkMode ? ThemeMode.dark : ThemeMode.light)
                 : settings.themeMode,
-            home: HomeScreen(
-              onThemeToggle: _toggleTheme,
-              isDarkMode: _isDarkMode,
-            ),
+            home: _showSplash
+                ? SplashScreen(
+                    onSplashComplete: () {
+                      setState(() {
+                        _showSplash = false;
+                      });
+                    },
+                  )
+                : HomeScreen(
+                    onThemeToggle: _toggleTheme,
+                    isDarkMode: _isDarkMode,
+                  ),
           );
         },
       ),

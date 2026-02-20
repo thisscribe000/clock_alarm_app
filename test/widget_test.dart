@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:clock_alarm_app/main.dart';
+import 'package:calc_convert/main.dart';
 
 void main() {
   testWidgets('app starts without errors', (WidgetTester tester) async {
