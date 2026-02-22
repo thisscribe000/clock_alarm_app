@@ -43,6 +43,7 @@ class _CurrencyScreenState extends State<CurrencyScreen> with SingleTickerProvid
   Timer? _historyCommitTimer;
   String _lastCommittedKey = '';
   static const Duration _historyCommitDelay = Duration(seconds: 7);
+  static const double _espToNgnFixedRate = 2050.0;
 
   final List<Map<String, dynamic>> _baseCurrencies = [
     {'code': 'esp', 'name': 'espees', 'symbol': 'ESP', 'rateToUSD': 1.3667, 'isPinned': true},
@@ -121,7 +122,11 @@ class _CurrencyScreenState extends State<CurrencyScreen> with SingleTickerProvid
           for (var currency in _currencies) {
             final code = currency['code'].toString().toUpperCase();
             if (code != 'ESP' && rates.containsKey(code)) {
-              currency['rateToUSD'] = rates[code];
+              final double apiRate = rates[code]!;
+              // API returns "Units per USD", but we need "Value in USD" (inverse)
+              if (apiRate != 0) {
+                currency['rateToUSD'] = 1.0 / apiRate;
+              }
             }
           }
           _updateESPRate();
@@ -297,7 +302,7 @@ class _CurrencyScreenState extends State<CurrencyScreen> with SingleTickerProvid
   // ---------------------------
   void _updateESPRate() {
     final ngnToUSDRate = _currencies.firstWhere((c) => c['code'] == 'ngn')['rateToUSD'] as double;
-    final espToUSDRate = 2050 * ngnToUSDRate;
+    final espToUSDRate = _espToNgnFixedRate * ngnToUSDRate;
     final espIndex = _currencies.indexWhere((c) => c['code'] == 'esp');
     _currencies[espIndex]['rateToUSD'] = espToUSDRate;
   }
@@ -343,7 +348,17 @@ class _CurrencyScreenState extends State<CurrencyScreen> with SingleTickerProvid
     } else if (amount >= 1e3) {
       return '${(amount / 1e3).toStringAsFixed(2)}k';
     } else {
-      return amount.toStringAsFixed(2);
+      final settings = Provider.of<SettingsProvider>(context, listen: false);
+      final places = settings.decimalPlaces;
+
+      if (amount == amount.toInt()) return amount.toInt().toString();
+
+      var s = amount.toStringAsFixed(places);
+      if (s.contains('.')) {
+        s = s.replaceFirst(RegExp(r"0+$"), "");
+        if (s.endsWith('.')) s = s.substring(0, s.length - 1);
+      }
+      return s;
     }
   }
 
@@ -493,12 +508,14 @@ class _CurrencyScreenState extends State<CurrencyScreen> with SingleTickerProvid
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    value,
-                    style: TextStyle(
-                      fontSize: 42,
-                      fontWeight: FontWeight.w300,
-                      color: isDark ? Colors.white : Colors.black,
+                  FittedBox(
+                    child: Text(
+                      value,
+                      style: TextStyle(
+                        fontSize: 42,
+                        fontWeight: FontWeight.w300,
+                        color: isDark ? Colors.white : Colors.black,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -719,7 +736,7 @@ class _CurrencyScreenState extends State<CurrencyScreen> with SingleTickerProvid
                       ],
                     ),
                     
-                    const Spacer(flex: 1),
+                    const SizedBox(height: 20),
                     
                     _buildCurrencyCard(
                       context: context,
@@ -883,7 +900,7 @@ class _CurrencyScreenState extends State<CurrencyScreen> with SingleTickerProvid
                       isFrom: false,
                     ),
                     
-                    const Spacer(flex: 2),
+                    const Spacer(flex: 6),
                     
                     if (_rateError != null)
                       Padding(

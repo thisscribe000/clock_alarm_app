@@ -87,8 +87,10 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
 
     // Format with fixed decimal places, then trim trailing zeros.
     var s = v.toStringAsFixed(places);
-    s = s.replaceFirst(RegExp(r"\.0+\$"), '');
-    s = s.replaceFirst(RegExp(r"(\.[0-9]*[1-9])0+\$"), r"\1");
+    if (s.contains('.')) {
+      s = s.replaceFirst(RegExp(r"0+$"), "");
+      if (s.endsWith('.')) s = s.substring(0, s.length - 1);
+    }
     return s;
   }
 
